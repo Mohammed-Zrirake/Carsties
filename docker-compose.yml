@@ -6,6 +6,11 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - pgdata:/var/lib/postresql/data
-volumes:
-  pgdata:
+      - /var/lib/postresql/data
+  
+  mongodb:
+    image: mongo
+    ports:
+    - 27017:27017
+    volumes:
+      - /data/db
