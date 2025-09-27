@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Entities;
 using SearchService.Models;
@@ -19,26 +19,21 @@ public class SearchController : ControllerBase
         {
             query.Match(Search.Full, searchParams.SearchTerm).SortByTextScore();
         }
-
+        
         query = searchParams.OrderBy switch
         {
-            "make" => query.Sort(x => x.Ascending(x => x.Make))
-                .Sort(x => x.Ascending(a => a.Model)),
-            "new" => query.Sort(x => x.Descending(x => x.CreatedAt)),
-            _ => query.Sort(x => x.Ascending(x => x.AuctionEnd))
+            "make" => query.Sort(x => x.Ascending(a => a.Make)),
+            "new" => query.Sort(x => x.Descending(a => a.CreatedAt)),
+            _ => query.Sort(x => x.Ascending(a => a.AuctionEnd)),
         };
 
-        if (!string.IsNullOrEmpty(searchParams.FilterBy))
+        query = searchParams.FilterBy switch
         {
-            query = searchParams.FilterBy switch
-            {
-                "finished" => query.Match(x => x.AuctionEnd < DateTime.UtcNow),
-                "endingSoon" => query.Match(x =>
-                    x.AuctionEnd < DateTime.UtcNow.AddHours(6)
-                        && x.AuctionEnd > DateTime.UtcNow),
-                _ => query.Match(x => x.AuctionEnd > DateTime.UtcNow) // live
-            };
-        }
+            "finished" => query.Match(x => x.AuctionEnd < DateTime.UtcNow),
+            "endingSoon" => query.Match(x => x.AuctionEnd < DateTime.UtcNow.AddHours(6) 
+                && x.AuctionEnd > DateTime.UtcNow),
+            _ => query.Match(x => x.AuctionEnd > DateTime.UtcNow),
+        };
 
         if (!string.IsNullOrEmpty(searchParams.Seller))
         {
@@ -55,11 +50,11 @@ public class SearchController : ControllerBase
 
         var result = await query.ExecuteAsync();
 
-        return Ok(new
+        return Ok(new 
         {
             results = result.Results,
             pageCount = result.PageCount,
-            totalCount = result.TotalCount
+            totalCount = result.TotalCount,
         });
     }
 }

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+using System;
+using AutoMapper;
 using Contracts;
 using MassTransit;
 using MongoDB.Entities;
@@ -10,7 +11,7 @@ public class AuctionUpdatedConsumer(IMapper mapper) : IConsumer<AuctionUpdated>
 {
     public async Task Consume(ConsumeContext<AuctionUpdated> context)
     {
-        Console.WriteLine("--> Consuming auction updated: " + context.Message.Id);
+        Console.WriteLine($"Auction updated: {context.Message.Id}");
 
         var item = mapper.Map<Item>(context.Message);
 
@@ -21,12 +22,12 @@ public class AuctionUpdatedConsumer(IMapper mapper) : IConsumer<AuctionUpdated>
                 x.Color,
                 x.Make,
                 x.Model,
-                x.Year,
-                x.Mileage
+                x.Mileage,
+                x.Year
             }, item)
             .ExecuteAsync();
 
         if (!result.IsAcknowledged)
-            throw new MessageException(typeof(AuctionUpdated), "Problem updating mongoDb");
+            throw new MessageException(typeof(AuctionUpdated), "Failed to update auction");
     }
 }

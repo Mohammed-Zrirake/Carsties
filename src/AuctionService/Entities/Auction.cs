@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 
 namespace AuctionService.Entities;
 
 public class Auction
 {
     public Guid Id { get; set; }
-    public int ReservePrice { get; set; } = 0;
+    public int ReservePrice { get; set; }
     public required string Seller { get; set; }
     public string? Winner { get; set; }
     public int? SoldAmount { get; set; }
@@ -14,7 +14,5 @@ public class Auction
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime AuctionEnd { get; set; }
     public Status Status { get; set; }
-    public Item Item { get; set; } = null!;
-
-    public bool HasReservePrice() => ReservePrice > 0;
+    public required Item Item { get; set; }
 }
